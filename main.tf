@@ -34,3 +34,51 @@ resource "aws_subnet" "public" {
     Name = "public-subnet-${local.availability_zone[count.index]}"
   }
 }
+
+#private subnet
+resource "aws_subnet" "private" {
+  count = length(var.private_subnet_cidr)
+  vpc_id     = aws_vpc.main.id
+  cidr_block = var.private_subnet_cidr[count.index]
+  availability_zone = local.availability_zone[count.index]
+  #map_public_ip_on_launch = true
+  tags = {
+    Name = "private-subnet-${local.availability_zone[count.index]}"
+  }
+}
+
+#database subnet
+resource "aws_subnet" "database" {
+  count = length(var.database_subnet_cidr)
+  vpc_id     = aws_vpc.main.id
+  cidr_block = var.database_subnet_cidr[count.index]
+  availability_zone = local.availability_zone[count.index]
+  #map_public_ip_on_launch = true
+  tags = {
+    Name = "database-subnet-${local.availability_zone[count.index]}"
+  }
+}
+
+#elastic ip
+resource "aws_eip" "lb" {
+  domain   = "vpc"
+  tags = {
+    Name = "elastic-ip-nat"
+  }
+}
+
+#natgateway
+resource "aws_nat_gateway" "example" {
+  allocation_id = aws_eip.lb.id
+  subnet_id     = aws_subnet.public.id
+
+  tags = {
+    Name = "gw NAT"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.gw]
+}
+
+
