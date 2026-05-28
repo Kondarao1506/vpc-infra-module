@@ -23,3 +23,10 @@ variable "vpc_cidr_block" {
 variable "common_tags" {
   default = {}
 }
+
+variable "gateway_tags" {
+  default = {
+
+  }
+}
+
