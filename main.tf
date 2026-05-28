@@ -1,0 +1,11 @@
+resource "aws_vpc" "main" {
+  cidr_block       = var.vpc_cidr_block
+  instance_tenancy = "default"
+
+  tags = merge(
+    var.common_tags,
+    var.vpc_tags,{
+        Name = local.vpc_name
+    }
+  )
+}
