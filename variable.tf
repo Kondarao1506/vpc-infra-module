@@ -30,3 +30,15 @@ variable "gateway_tags" {
   }
 }
 
+#public subnet
+variable "public_subnet_cidr" {
+  type = list
+}
+
+variable "private_subnet_cidr" {
+  type = list
+}
+
+variable "database_subnet_cidr" {
+  type = list
+}
