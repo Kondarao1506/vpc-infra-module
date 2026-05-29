@@ -81,4 +81,68 @@ resource "aws_nat_gateway" "example" {
   depends_on = [aws_internet_gateway.gw]
 }
 
+#public route table
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+ tags = {
+   Name = "roboshop-dev-public-route-table"
+ }
+}
 
+#private route table
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+ tags = {
+   Name = "roboshop-dev-private-route-table"
+ }
+}
+
+#database route table
+resource "aws_route_table" "database" {
+  vpc_id = aws_vpc.main.id
+ tags = {
+   Name = "roboshop-dev-database-route-table"
+ }
+}
+
+#public route
+resource "aws_route" "public" {
+  route_table_id            = aws_route_table.public.id
+  destination_cidr_block    = "0.0.0.0/0"
+  gateway_id = aws_internet_gateway.gw.id
+}
+
+#private route
+resource "aws_route" "private" {
+  route_table_id            = aws_route_table.private.id
+  destination_cidr_block    = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.example.id
+}
+#database route
+resource "aws_route" "private" {
+  route_table_id            = aws_route_table.database.id
+  destination_cidr_block    = "0.0.0.0/0"
+  nat_gateway_id = aws_nat_gateway.example.id
+}
+
+
+#public route table assotiation
+resource "aws_route_table_association" "example" {
+  count = length(var.public_subnet_cidr)
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
+}
+
+#private route table assotiation
+resource "aws_route_table_association" "example" {
+  count = length(var.private_subnet_cidr)
+  subnet_id      = aws_subnet.private[count.index].id
+  route_table_id = aws_route_table.private.id
+}
+
+#database route table assotiation
+resource "aws_route_table_association" "example" {
+  count = length(var.database_subnet_cidr)
+  subnet_id      = aws_subnet.database[count.index].id
+  route_table_id = aws_route_table.database.id
+}
