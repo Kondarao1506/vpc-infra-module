@@ -119,7 +119,7 @@ resource "aws_route" "private" {
   nat_gateway_id = aws_nat_gateway.example.id
 }
 #database route
-resource "aws_route" "private" {
+resource "aws_route" "database" {
   route_table_id            = aws_route_table.database.id
   destination_cidr_block    = "0.0.0.0/0"
   nat_gateway_id = aws_nat_gateway.example.id
